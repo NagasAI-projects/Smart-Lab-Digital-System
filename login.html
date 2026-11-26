@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Admin Login | SmartLab{% endblock %}
+{% block content %}
+<div class="login-wrap"><section class="panel login-panel"><span class="eyebrow">FACULTY ACCESS</span><h1>Admin sign in</h1><p class="muted">Authorized staff can review lab visits and export records.</p>
+<form method="post"><label for="username">Username</label><input id="username" name="username" autocomplete="username" required>
+<label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required>
+<button class="btn btn-primary btn-wide" type="submit">Sign in →</button></form>
+<p class="tiny">Demo only: admin / ChangeMe123!</p></section></div>
+{% endblock %}
