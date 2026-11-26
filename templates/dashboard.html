@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard | SmartLab{% endblock %}
+{% block content %}
+<div class="dash-title"><div><span class="eyebrow">FACULTY CONSOLE</span><h1>Lab overview</h1><p class="muted">Review check-ins across branches, years and lab rooms.</p></div>
+<form method="post" action="{{ url_for('admin_logout') }}"><span class="admin-name">Signed in as {{ session.get('admin_username') }}</span><button class="btn btn-secondary" type="submit">Sign out</button></form></div>
+<div class="stats-grid">
+ <div class="stat-card"><span>Visits on selected date</span><strong>{{ total }}</strong><small>All branches and labs</small></div>
+ <div class="stat-card"><span>Currently inside</span><strong>{{ inside }}</strong><small>Visits not checked out</small></div>
+ <div class="stat-card"><span>Active computers</span><strong>{{ systems_total }}</strong><small>Across configured labs</small></div>
+ <div class="stat-card"><span>Occupied now</span><strong>{{ occupied }}</strong><small>Active check-ins</small></div>
+</div>
+<section class="panel">
+ <div class="panel-heading"><div><span class="eyebrow">RECORD SEARCH</span><h2>Lab visit records</h2></div><a class="btn btn-primary" href="{{ url_for('export_csv', date=date_filter) }}">Export selected date CSV ↓</a></div>
+ <form class="filters" method="get">
+  <div><label>Date</label><input type="date" name="date" value="{{ date_filter }}"></div>
+  <div><label>Branch</label><select name="branch"><option value="">All branches</option>{% for b in branches %}<option value="{{ b }}" {% if branch_filter==b %}selected{% endif %}>{{ b }}</option>{% endfor %}</select></div>
+  <div><label>Year</label><select name="year"><option value="">All years</option>{% for y in years %}<option value="{{ y }}" {% if year_filter==y %}selected{% endif %}>{{ y }}</option>{% endfor %}</select></div>
+  <div><label>Lab</label><select name="lab"><option value="">All labs</option>{% for lab in labs %}<option value="{{ lab.lab_name }}" {% if lab_filter==lab.lab_name %}selected{% endif %}>{{ lab.lab_name }}</option>{% endfor %}</select></div>
+  <div class="search-field"><label>Search</label><input name="q" value="{{ q }}" placeholder="Name, PIN or PC"></div>
+  <div class="filter-actions"><button class="btn btn-dark" type="submit">Apply filters</button><a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Reset</a></div>
+ </form>
+ <div class="table-wrap"><table><thead><tr><th>Student</th><th>Branch / Year</th><th>Lab / PC</th><th>Purpose</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead><tbody>
+ {% for v in visits %}<tr><td><strong>{{ v.name }}</strong><small>{{ v.pin }}</small></td><td>{{ v.branch }}<small>{{ v.year }}{% if v.section %} · {{ v.section }}{% endif %}</small></td><td>{{ v.lab_name }}<small>{{ v.system_code }}</small></td><td>{{ v.purpose }}</td><td>{{ v.check_in|replace('T',' ') }}</td><td>{{ (v.check_out|replace('T',' ')) if v.check_out else '—' }}</td><td><span class="status {{ 'inside' if v.status=='Inside' else 'out' }}">{{ v.status }}</span></td></tr>
+ {% else %}<tr><td colspan="7" class="empty">No records match these filters. Use a demo PIN on the student page to create a test visit.</td></tr>{% endfor %}
+ </tbody></table></div>
+</section>
+<section class="panel chart-panel"><div><span class="eyebrow">USAGE PATTERN</span><h2>Check-ins by hour</h2><p class="muted">Counts for the selected date. Empty hours are shown as zero.</p></div>
+<div class="bars">{% for hour in hours %}<div class="bar-column"><span class="bar-count">{{ hour_values[loop.index0] }}</span><div class="bar" style="height:{{ [hour_values[loop.index0]*12,4]|max }}px"></div><small>{{ hour }}</small></div>{% endfor %}</div></section>
+{% endblock %}
